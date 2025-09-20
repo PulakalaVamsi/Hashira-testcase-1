@@ -1,0 +1,49 @@
+import java.math.BigInteger;
+import java.util.*;
+
+public class ShamirSecretSharing {
+    public static BigInteger convertToDecimal(String value, int base) {
+        return new BigInteger(value, base);
+    }
+
+    public static BigInteger lagrangeInterpolation(List<BigInteger> x, List<BigInteger> y, int k) {
+        BigInteger secret = BigInteger.ZERO;
+        for (int i = 0; i < k; i++) {
+            BigInteger xi = x.get(i);
+            BigInteger yi = y.get(i);
+            BigInteger termNum = yi;
+            BigInteger termDen = BigInteger.ONE;
+            for (int j = 0; j < k; j++) {
+                if (i != j) {
+                    BigInteger xj = x.get(j);
+                    termNum = termNum.multiply(xj);
+                    termDen = termDen.multiply(xj.subtract(xi));
+                }
+            }
+            BigInteger term = termNum.divide(termDen);
+            secret = secret.add(term);
+        }
+        return secret;
+    }
+
+    public static void main(String[] args) {
+        int n = 4, k = 3;
+        int[] xKeys = {1, 2, 3, 6};
+        int[] bases = {10, 2, 10, 4};
+        String[] values = {"4", "111", "12", "213"};
+
+        List<BigInteger> x = new ArrayList<>();
+        List<BigInteger> y = new ArrayList<>();
+
+        for (int i = 0; i < n; i++) {
+            x.add(BigInteger.valueOf(xKeys[i]));
+            y.add(convertToDecimal(values[i], bases[i]));
+        }
+
+        List<BigInteger> xk = x.subList(0, k);
+        List<BigInteger> yk = y.subList(0, k);
+
+        BigInteger secret = lagrangeInterpolation(xk, yk, k);
+        System.out.println("Secret: " + secret);
+    }
+}
